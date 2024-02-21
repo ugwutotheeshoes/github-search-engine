@@ -1,4 +1,4 @@
-const Checkbox = ({ label, selectRole, handleSelect }) => {
+const Radio = ({ label, selectRole, handleSelect }) => {
   return (
     <div>
       <label className="flex items-center justify-center gap-2">
@@ -13,4 +13,4 @@ const Checkbox = ({ label, selectRole, handleSelect }) => {
     </div>
   );
 };
-export default Checkbox;
+export default Radio;

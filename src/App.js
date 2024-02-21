@@ -1,11 +1,14 @@
 import { useState } from "react";
-import Checkbox from "./Checkbox";
+import Radio from "./Radio";
+import Loader from "./Loader";
 
 function App() {
   const [value, setValue] = useState("");
   const [selectRole, setSelectRole] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   const [users, setUsers] = useState([]);
   const [isDisabled, setIsDisabled] = useState(true);
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setValue(e.target.value);
@@ -14,23 +17,62 @@ function App() {
     setSelectRole(e.target.value);
     setIsDisabled(false);
   };
-  const handleSubmit = async (e) => {
+  const handleSubmit = (e) => {
     e.preventDefault();
+    setLoading(true);
     const response =
       selectRole === "User"
-        ? await fetch(
-            `https://api.github.com/search/users?q=${value}+type:user`
-          )
-        : await fetch(
-            `https://api.github.com/search/users?q=${value}+type:org`
-          );
-
-    const data = await response.json();
-    const users = data.items;
-    // console.log(users);
-    setUsers(users);
-    setValue('');
+        ? fetch(`https://api.github.com/search/users?q=${value}+type:user`)
+        : fetch(`https://api.github.com/search/users?q=${value}+type:org`);
+    response
+      .then((res) => res.json())
+      .then((data) => {
+        const users = data.items;
+        setUsers(users);
+        setLoading(false);
+        setIsDisabled(true);
+        setValue("");
+      })
+      .catch(() => {
+        setErrorMessage("Unable to fetch list");
+        setIsDisabled(true);
+        setLoading(false);
+      });
   };
+
+  // const role = (
+
+  // );
+
+  const renderUser = (
+    <div>
+      <div className="mt-8 mx-4">
+        {users[0]?.type === "User" ? (
+          <h1 className="text-2xl font-semibold">{users.length} users found</h1>
+        ) : users[0]?.type === "Organization" ? (
+          <h1 className="text-2xl font-semibold">
+            {users.length} organizations found
+          </h1>
+        ) : (
+          <h1 className="text-2xl font-italic italic text-center mt-20">
+            Search for a user or organization...
+          </h1>
+        )}
+      </div>
+      {users?.map((user) => (
+        <div key={user.id} className="flex gap-4 m-4 items-center ">
+          <img
+            src={user.avatar_url}
+            alt={user.login}
+            className="h-16 w-16 rounded-full"
+          />
+          <a href={user.html_url} className="text-2xl font-medium">
+            {user.login}
+          </a>
+        </div>
+      ))}
+    </div>
+  );
   return (
     <div>
       <div className="flex justify-between items-center border-b-2 py-6 px-4 bg-slate-200 gap-10">
@@ -44,12 +86,12 @@ function App() {
           <div>
             <p>Select a role to search for:</p>
             <div className="flex justify-between items-center gap-10 mr-8">
-              <Checkbox
+              <Radio
                 label="User"
                 selectRole={selectRole}
                 handleSelect={handleSelect}
               />
-              <Checkbox
+              <Radio
                 label="Organization"
                 selectRole={selectRole}
                 handleSelect={handleSelect}
@@ -74,31 +116,9 @@ function App() {
           </button>
         </form>
       </div>
-      <ul className="mt-8 mx-4">
-        {selectRole === "User" && users.length > 0  ? (
-          <h1 className="text-2xl font-semibold">{users.length} users found</h1>
-        ) : selectRole === "Organization" && users.length > 0 ? (
-          <h1 className="text-2xl font-semibold">
-            {users.length} organizations found
-          </h1>
-        ) : (
-          <h1 className="text-2xl font-italic italic text-center mt-20">
-            Search for a user or organization...
-          </h1>
-        )}
-        {users?.map((user) => (
-          <li key={user.id} className="flex gap-4 m-4 items-center ">
-            <img
-              src={user.avatar_url}
-              alt={user.login}
-              className="h-16 w-16 rounded-full"
-            />
-            <a href={user.html_url} className="text-2xl font-medium">
-              {user.login}
-            </a>
-          </li>
-        ))}
-      </ul>
+      {/* {role} */}
+      {loading ? <Loader /> : renderUser}
+      {errorMessage && <div className="error">{errorMessage}</div>}
     </div>
   );
 }
