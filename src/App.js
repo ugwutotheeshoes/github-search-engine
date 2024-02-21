@@ -34,15 +34,11 @@ function App() {
         setValue("");
       })
       .catch(() => {
-        setErrorMessage("Unable to fetch list");
+        setErrorMessage("No results found");
         setIsDisabled(true);
         setLoading(false);
       });
   };
-
-  // const role = (
-
-  // );
 
   const renderUser = (
     <div>
@@ -116,9 +112,8 @@ function App() {
           </button>
         </form>
       </div>
-      {/* {role} */}
       {loading ? <Loader /> : renderUser}
-      {errorMessage && <div className="error">{errorMessage}</div>}
+      {errorMessage && <div className="text-2xl font-italic italic text-center mt-20">{errorMessage}</div>}
     </div>
   );
 }
