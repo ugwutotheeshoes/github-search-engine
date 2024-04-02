@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Radio from "./Radio";
 import Loader from "./Loader";
 import useDebounce from "./useDebounce";
-import { useNavigate, useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function Engine() {
   const [value, setValue] = useState("");
@@ -12,14 +12,8 @@ function Engine() {
   const [isDisabled, setIsDisabled] = useState(true);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const location = useLocation();
-  const searchQuery = new URLSearchParams(location.search).get("q");
-  const roleQuery = new URLSearchParams(location.search).get("type");
-
-  const user = selectRole === "User" ? "user" : "org";
 
   const handleChange = (e) => {
-    // navigate(`/search/?q=${debounceSearch}+type:${user}`);
     setValue(e.target.value);
     console.log("change");
   };
@@ -44,27 +38,15 @@ function Engine() {
           setUsers(users);
           setLoading(false);
           navigate(`/search/?q=${debounceSearch}+type:${user}`);
-          console.log(searchQuery);
-          console.log(roleQuery);
-          if (window.location.reload && searchQuery) {
-            setSelectRole(user);
-            setValue(debounceSearch);
-          }
-          // setValue("");
         })
         .catch(() => {
           setErrorMessage("No results found");
-          // setIsDisabled(true);
           setLoading(false);
         });
     }
     if (debounceSearch) Data();
   }, [debounceSearch]);
 
-  // const handleSubmit = () => {
-  //   // e.preventDefault();
-
-  // };
 
   const renderUser = (
     <div>
